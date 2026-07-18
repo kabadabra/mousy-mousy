@@ -1,4 +1,5 @@
 import AppKit
+import os.log
 
 /// Stops the session when the system state changes under us: sleep, screens
 /// sleeping, screen lock, screensaver, fast user switch. Names on the
@@ -8,6 +9,7 @@ import AppKit
 @MainActor
 final class SafetyMonitor {
     var onInterrupt: (() -> Void)?
+    private let log = Logger(subsystem: "com.chris.mousymousy", category: "safety")
     private var workspaceTokens: [NSObjectProtocol] = []
     private var distributedTokens: [NSObjectProtocol] = []
     private var centerTokens: [NSObjectProtocol] = []
@@ -19,7 +21,10 @@ final class SafetyMonitor {
         centerTokens = [NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.onInterrupt?() }
+                MainActor.assumeIsolated {
+                    self?.log.notice("interrupt: didChangeScreenParameters")
+                    self?.onInterrupt?()
+                }
             }]
         let ws = NSWorkspace.shared.notificationCenter
         let wsNames: [Notification.Name] = [
@@ -28,15 +33,23 @@ final class SafetyMonitor {
             NSWorkspace.sessionDidResignActiveNotification,
         ]
         workspaceTokens = wsNames.map { name in
-            ws.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.onInterrupt?() }
+            ws.addObserver(forName: name, object: nil, queue: .main) { [weak self] note in
+                let firedName = note.name.rawValue
+                MainActor.assumeIsolated {
+                    self?.log.notice("interrupt: \(firedName, privacy: .public)")
+                    self?.onInterrupt?()
+                }
             }
         }
         let dnc = DistributedNotificationCenter.default()
         let dncNames = ["com.apple.screenIsLocked", "com.apple.screensaver.didstart"]
         distributedTokens = dncNames.map { name in
-            dnc.addObserver(forName: Notification.Name(name), object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.onInterrupt?() }
+            dnc.addObserver(forName: Notification.Name(name), object: nil, queue: .main) { [weak self] note in
+                let firedName = note.name.rawValue
+                MainActor.assumeIsolated {
+                    self?.log.notice("interrupt: \(firedName, privacy: .public)")
+                    self?.onInterrupt?()
+                }
             }
         }
     }
