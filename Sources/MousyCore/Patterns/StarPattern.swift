@@ -4,6 +4,14 @@ import Foundation
 /// Five-point star traversed as a continuous stroke (vertex order 0,2,4,1,3).
 public struct StarPattern: MousePattern {
     private var progress: Double = 0       // distance traveled along the stroke
+
+    // Cached stroke geometry, recomputed only when `bounds` changes. The star's
+    // shape is a pure function of `bounds`, so per-frame work stays arithmetic.
+    private var cachedBounds: CGRect?
+    private var pts: [CGPoint] = []         // vertices in stroke order, closed loop
+    private var lens: [CGFloat] = []        // edge lengths (pts[i] → pts[i + 1])
+    private var total: Double = 0           // perimeter of the closed stroke
+
     public init() {}
 
     public static func vertices(in b: CGRect) -> [CGPoint] {
@@ -17,10 +25,13 @@ public struct StarPattern: MousePattern {
     public func startPoint(in bounds: CGRect) -> CGPoint { Self.vertices(in: bounds)[0] }
 
     public mutating func step(dt: TimeInterval, bounds: CGRect, speed: Double, cursor: CGPoint) -> CGPoint {
-        let vs = Self.vertices(in: bounds)
-        let pts = vs + [vs[0]]
-        let lens = zip(pts, pts.dropFirst()).map { Geometry.distance($0, $1) }
-        let total = Double(lens.reduce(0, +))
+        if cachedBounds != bounds {
+            let vs = Self.vertices(in: bounds)
+            pts = vs + [vs[0]]
+            lens = zip(pts, pts.dropFirst()).map { Geometry.distance($0, $1) }
+            total = Double(lens.reduce(0, +))
+            cachedBounds = bounds
+        }
         progress = (progress + dt * 260 * speed).truncatingRemainder(dividingBy: total)
         var remaining = progress
         for (i, len) in lens.enumerated() {
