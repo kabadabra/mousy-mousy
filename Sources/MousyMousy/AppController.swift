@@ -19,7 +19,6 @@ final class AppController {
     private var engine: EngineCore?
     private var bounds: CGRect = .zero
     private var speed: Double = 1
-    private var runningSince: TimeInterval?
     private var countdownTask: Task<Void, Never>?
     private var dimTask: Task<Void, Never>?
     private let log = Logger(subsystem: "com.chris.mousymousy", category: "session")
@@ -52,7 +51,6 @@ final class AppController {
         state = .running
         overlay.model.phase = .running
         overlay.model.showSprite = true
-        runningSince = nil                       // armed on first tick
         wake.start()
         dimTask = Task { [weak self] in          // card fades after 5 s (spec §4)
             try? await Task.sleep(for: .seconds(5))
@@ -65,18 +63,8 @@ final class AppController {
 
     private func tick(now: TimeInterval, dt: TimeInterval) {
         guard state == .running, var engine else { return }
-        if runningSince == nil { runningSince = now }
-        // Deviation check: armed 0.5 s after running begins (spec §5.6) so the
-        // hand leaving the mouse doesn't trip it.
-        if let since = runningSince, now - since > 0.5,
-           let expected = synthesizer.lastPosted {
-            let actual = synthesizer.currentCocoaPosition
-            if Deviation.humanMoved(expected: expected, actual: actual) {
-                log.notice("deviation: expected=(\(expected.x, privacy: .public),\(expected.y, privacy: .public)) actual=(\(actual.x, privacy: .public),\(actual.y, privacy: .public)) dist=\(Geometry.distance(expected, actual), privacy: .public)")
-                stop(reason: "deviation")
-                return
-            }
-        }
+        // The session ends only via ESC, the menu, or a system event (lock/
+        // sleep/display change) — physical mouse input does NOT stop it.
         let frame = engine.tick(now: now, dt: dt, bounds: bounds, speed: speed,
                                 cursor: synthesizer.currentCocoaPosition)
         self.engine = engine

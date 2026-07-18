@@ -23,10 +23,3 @@ import CoreGraphics
 @Test func distanceIsEuclidean() {
     #expect(Geometry.distance(CGPoint(x: 0, y: 0), CGPoint(x: 3, y: 4)) == 5)
 }
-
-@Test func deviationTriggersOnlyBeyondThreshold() {
-    let a = CGPoint(x: 500, y: 500)
-    #expect(!Deviation.humanMoved(expected: a, actual: CGPoint(x: 510, y: 500)))
-    #expect(Deviation.humanMoved(expected: a, actual: CGPoint(x: 516, y: 500)))
-    #expect(Deviation.threshold == 15)
-}
