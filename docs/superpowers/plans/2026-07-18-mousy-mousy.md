@@ -106,6 +106,7 @@ git add -A && git commit -m "chore: scaffold SwiftPM package with core, app, and
 **Files:**
 - Create: `Sources/MousyCore/Geometry.swift`, `Sources/MousyCore/Deviation.swift`, `Tests/MousyCoreTests/GeometryTests.swift`
 - Delete: `Sources/MousyCore/Placeholder.swift`, `Tests/MousyCoreTests/SmokeTests.swift`
+- Modify: `Sources/MousyMousy/main.swift` — change the print to `print("Mousy Mousy")` (it referenced the deleted `MousyCore.version`; the file is replaced wholesale in Task 11)
 
 **Interfaces:**
 - Produces:
