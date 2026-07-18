@@ -50,22 +50,44 @@ private func assertContinuous(_ pattern: inout some MousePattern,
     var p = StarPattern()
     let vertices = StarPattern.vertices(in: bounds)
     #expect(vertices.count == 5)
-    // Record the frame at which each vertex is first reached during one fresh
-    // traversal. StarPattern.vertices(in:) returns them already in stroke order
-    // (0,2,4,1,3), so first-arrival order must equal the array's own order —
-    // a regression to plain pentagon order (0,1,2,3,4) would break this.
-    var firstArrival = Array(repeating: Int.max, count: 5)
+    // Record the cursor position at the moment of first arrival at each vertex
+    // (the vertex array is used only to DETECT arrivals, never as the expected
+    // order — that would be tautological, since step() walks that same array).
+    var claimed = Array(repeating: false, count: 5)
+    var arrivals: [CGPoint] = []
     let dt = 1.0 / 120.0
-    for frame in 0..<Int(60.0 * 120) {
+    for _ in 0..<Int(60.0 * 120) {
         let pt = p.step(dt: dt, bounds: bounds, speed: 1.0, cursor: .zero)
         for (i, v) in vertices.enumerated()
-        where firstArrival[i] == Int.max && Geometry.distance(pt, v) < 8 {
-            firstArrival[i] = frame
+        where !claimed[i] && Geometry.distance(pt, v) < 8 {
+            claimed[i] = true
+            arrivals.append(pt)
         }
     }
-    #expect(firstArrival.allSatisfy { $0 != Int.max })
-    let arrivalOrder = (0..<5).sorted { firstArrival[$0] < firstArrival[$1] }
-    #expect(arrivalOrder == Array(0..<5))
+    #expect(arrivals.count == 5)
+
+    // Independent geometric oracle: the vertices of a five-point star lie on a
+    // circle, and a pentagram stroke advances 144 degrees around the center
+    // between consecutive vertices, while a plain pentagon walk advances only
+    // 72 degrees. Assert the angle of each consecutive first arrival about the
+    // bounds center jumps by ~144 degrees (mod 360), starting at ~90 degrees
+    // (point-up star). Detection radius 8 pt on r ~= 368 pt keeps angular noise
+    // under ~1.3 degrees per arrival, so a 5-degree tolerance is comfortable.
+    let center = CGPoint(x: bounds.midX, y: bounds.midY)
+    let angles = arrivals.map {
+        Double(atan2($0.y - center.y, $0.x - center.x)) * 180 / .pi
+    }
+    /// Signed angular difference mapped into (-180, 180].
+    func angleDelta(_ a: Double, _ b: Double) -> Double {
+        var d = (a - b).truncatingRemainder(dividingBy: 360)
+        if d > 180 { d -= 360 }
+        if d <= -180 { d += 360 }
+        return d
+    }
+    #expect(abs(angleDelta(angles[0], 90)) < 5)
+    for k in 1..<5 {
+        #expect(abs(angleDelta(angles[k] - angles[k - 1], 144)) < 5)
+    }
 }
 
 @Test func starStaysInBoundsAndContinuous() {
