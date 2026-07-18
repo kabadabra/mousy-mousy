@@ -11,11 +11,12 @@ launch via `open "/Applications/Mousy Mousy.app"`.
 ## Session lifecycle
 - [ ] Start → scrim fades in on ALL displays; glass card centered on the
       cursor's display; countdown 3…2…1.
-- [ ] Hand resting on the mouse during countdown does NOT abort the session.
 - [ ] After countdown: Mousy runs, cursor chases ~a third of a second behind,
       card switches to "ESC to exit" and dims after ~5 s.
 - [ ] ESC exits gracefully (fade out), cursor stays where it was.
-- [ ] Physically moving the mouse mid-run stops the session.
+- [ ] Physically moving the mouse mid-run does NOT stop the session — Mousy
+      retakes the cursor and continues. Only ESC, the menu, or a system event
+      (lock/sleep/display change) exits.
 - [ ] Menu "Stop" works. Other keys (letters, space, ⌘Q) do NOT leak into the
       app that was focused before starting, and do not exit the session.
 

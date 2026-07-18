@@ -9,8 +9,7 @@ Replaces: `~/mouse_mover.js` (JXA script that teleported the cursor randomly eve
 Mousy Mousy is a macOS menu bar app that keeps the Mac awake and the user "active" by
 moving the cursor. Instead of sporadic teleports, a little mouse critter (🐭, "Mousy")
 runs around the screen and the real cursor chases it along patterned routes. While
-active, a full-screen overlay shows a Liquid Glass card: press **ESC** (or just move
-the mouse yourself) to exit.
+active, a full-screen overlay shows a Liquid Glass card: press **ESC** to exit.
 
 Personal-use app for Chris's machine (macOS 26.5, Apple Silicon). Not sandboxed, not
 notarized, not App Store.
@@ -25,8 +24,9 @@ Goals (v1):
   before movement starts.
 - Machine stays awake (display + system) and software presence detectors
   (Teams-style idle watchers) see activity.
-- Instant, graceful exit on ESC, real user mouse movement, screen lock/sleep/fast
-  user switch, or menu Stop.
+- Instant, graceful exit on ESC, screen lock/sleep/fast user switch, or menu
+  Stop. (Changed after v1 hands-on: physical mouse input does NOT end the
+  session — the original mouse-movement exit tripped on residual hand contact.)
 - Launch-at-login toggle.
 - Accessibility permission survives rebuilds (stable signing identity).
 
@@ -82,14 +82,12 @@ without a display.
      instead of Start (see §7).
 3. On Start: scrim (black at ~12 % opacity) fades in over **all** displays; the glass
    card appears centered on the display containing the cursor.
-4. Card shows **"Starting in 3… 2… 1"** — a grace period so the user's hand leaving
-   the mouse doesn't trip the deviation detector.
+4. Card shows **"Starting in 3… 2… 1"** — a moment to take your hand off the
+   mouse before Mousy takes over.
 5. Patterns run. Card shows an escape-key glyph + **"ESC to exit"**, and after ~5 s
    fades to ~35 % opacity so it doesn't dominate the screen.
 6. Exit triggers (any → graceful fade-out of overlay, cursor left where it is):
    - **ESC** key
-   - **Real mouse movement**: the app compares the cursor's actual position each tick
-     with where it last placed it; deviation > 15 pt means the human is back
    - Screen lock, screensaver, system/display sleep, fast user switch
    - **Stop** from the menu
    - Non-ESC keys are swallowed by the overlay and ignored (the overlay panel is the
@@ -195,11 +193,9 @@ This is the shipping pattern from Jiggler/KeepingYouAwake. Verifiable via
 
 ### 5.6 Safety monitor
 
-- **Deviation check** (each tick, active only in `running`, armed 0.5 s after the
-  countdown ends): if `currentCursorPosition` differs from the last posted position
-  by > 15 pt, the human moved the mouse → stop. Reading the cursor position needs
-  no permission. This is Jiggler's own approach; event-source tagging can't replace
-  it because posted events still pollute the shared idle counters.
+- Physical mouse input does not stop the session (v1 hands-on change: a
+  deviation-based auto-stop proved too trigger-happy — residual hand contact
+  at arm time ended sessions — and was removed in favor of ESC-only).
 - **Lock/sleep/session observers** → immediate stop:
   - `NSWorkspace`: `willSleepNotification`, `screensDidSleepNotification`,
     `sessionDidResignActiveNotification`
@@ -269,9 +265,9 @@ duplicated in defaults. No other persisted state.
 - **Unit (`swift test`)**: pattern geometry (points stay in bounds, continuity/no
   teleports between ticks, star vertex order, Zoomies dart trigger), Cocoa↔CG
   coordinate flip (multi-display fixtures incl. negative-origin secondaries),
-  auto-cycle shuffle (no immediate repeats), deviation threshold logic.
+  auto-cycle shuffle (no immediate repeats).
 - **Manual UAT checklist** (committed as `docs/UAT.md`): permission first-run flow;
-  countdown grace (hand on mouse during 3-2-1 doesn't trip); each exit trigger;
+  each exit trigger;
   card legibility + fade; multi-display scrim; lock-screen stop; `pmset -g
   assertions` shows the assertion while running and not after; presence check
   (system idle time resets while running); launch at login; rebuild → permission

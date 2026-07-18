@@ -2,8 +2,7 @@
 
 A macOS menu bar app that keeps your Mac awake by letting a little mouse run
 around your screen while your cursor chases it. Circles, stars, figure-8s,
-scribbles, and zoomies. Press ESC (or just move your mouse) to take back
-control.
+scribbles, and zoomies. Press ESC to take back control.
 
 ## Build (no Xcode needed — Command Line Tools only)
 
