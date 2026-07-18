@@ -23,7 +23,7 @@ NOTARY_PROFILE="${NOTARY_PROFILE:-mousy-notary}"
 APP="dist/Mousy Mousy.app"
 ZIP="dist/MousyMousy-$VERSION.zip"
 
-if codesign -dv "$APP" 2>&1 | grep -q "Developer ID Application" \
+if codesign -dvv "$APP" 2>&1 | grep -q "Developer ID Application" \
    && DEVELOPER_DIR="$XCODE_DEV" xcrun notarytool history \
         --keychain-profile "$NOTARY_PROFILE" >/dev/null 2>&1; then
     echo "Notarizing with keychain profile '$NOTARY_PROFILE'…"
