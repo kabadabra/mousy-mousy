@@ -30,6 +30,9 @@ if codesign -dvv "$APP" 2>&1 | grep -q "Developer ID Application" \
     ditto -c -k --keepParent "$APP" "$ZIP"
     DEVELOPER_DIR="$XCODE_DEV" xcrun notarytool submit "$ZIP" \
         --keychain-profile "$NOTARY_PROFILE" --wait
+    # Staple needs api.apple-cloudkit.com with Apple's REAL certs — stapler
+    # pins them, so corporate TLS interception (GlobalProtect VPN) fails with
+    # Error 68. Run releases off-VPN.
     DEVELOPER_DIR="$XCODE_DEV" xcrun stapler staple "$APP"
     rm "$ZIP"    # re-zip below so the stapled ticket ships inside
     echo "Notarized and stapled."
