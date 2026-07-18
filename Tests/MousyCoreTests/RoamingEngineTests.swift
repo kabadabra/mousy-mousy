@@ -17,6 +17,9 @@ import CoreGraphics
                        cursor: CGPoint(x: 100, y: 100))
         if let pm = prevMousy { #expect(Geometry.distance(pm, f.mousy) < 30) }
         if f.mousy.x > 2560 { sawRightScreen = true }
+        let cIn = arenas[0].screen.insetBy(dx: -1, dy: -1).contains(f.cursor)
+            || arenas[1].screen.insetBy(dx: -1, dy: -1).contains(f.cursor)
+        #expect(cIn)
         prevMousy = f.mousy
     }
     #expect(sawRightScreen)
