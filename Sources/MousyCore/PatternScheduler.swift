@@ -47,6 +47,7 @@ public struct PatternScheduler: Sendable {
 
     public mutating func step(now: TimeInterval, dt: TimeInterval, arenas: [Arena],
                               speed: Double, cursor: CGPoint) -> CGPoint {
+        precondition(!arenas.isEmpty, "PatternScheduler.step requires at least one arena")
         let arena = arenas[min(currentArenaIndex, arenas.count - 1)]
         // Mid-transit: keep scampering through the queued legs.
         if var t = transits.first {
@@ -63,7 +64,7 @@ public struct PatternScheduler: Sendable {
             case .fixed(let k): kind = k
             case .autoCycle: kind = Self.pickNext(excluding: currentKind, using: &rng)
             }
-            let fromIndex = currentArenaIndex
+            let fromIndex = min(currentArenaIndex, arenas.count - 1)
             let toIndex = arenas.count > 1 ? Self.pickArena(count: arenas.count, using: &rng)
                                            : 0
             let toArena = arenas[toIndex]
