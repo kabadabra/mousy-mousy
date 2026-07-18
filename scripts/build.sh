@@ -13,18 +13,26 @@ cp Support/Info.plist "$APP/Contents/Info.plist"
 cp Support/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 
 # NEVER ad-hoc (-s -): see scripts/make-cert.sh header.
-# Prefer an Apple-chained development identity when one exists (no manual
-# Keychain trust step, SMAppService-friendliest); else the local self-signed
-# cert. Both give a rebuild-stable designated requirement, so the
-# Accessibility grant survives rebuilds either way.
+# Identity priority: Developer ID Application (distributable, notarizable)
+# > Apple Development (local, Apple-chained) > MousyMousy Dev (self-signed
+# fallback). All give a rebuild-stable designated requirement, so the
+# Accessibility grant survives rebuilds; switching BETWEEN identities changes
+# the requirement and re-prompts once.
+find_identity() {
+    security find-identity -v -p codesigning 2>/dev/null \
+        | sed -n "s/.*\"\($1[^\"]*\)\".*/\1/p" | head -1
+}
 IDENTITY="MousyMousy Dev"
-APPLE_DEV=$(security find-identity -v -p codesigning 2>/dev/null \
-    | sed -n 's/.*"\(Apple Development[^"]*\)".*/\1/p' | head -1)
-if [[ -n "$APPLE_DEV" ]]; then
+EXTRA=()
+if DEV_ID=$(find_identity "Developer ID Application") && [[ -n "$DEV_ID" ]]; then
+    IDENTITY="$DEV_ID"
+    # Notarization requires hardened runtime + a secure timestamp.
+    EXTRA=(--timestamp --options runtime)
+elif APPLE_DEV=$(find_identity "Apple Development") && [[ -n "$APPLE_DEV" ]]; then
     IDENTITY="$APPLE_DEV"
 fi
 echo "Signing with: $IDENTITY"
-codesign --force --sign "$IDENTITY" "$APP"
+codesign --force ${EXTRA[@]+"${EXTRA[@]}"} --sign "$IDENTITY" "$APP"
 codesign --verify --verbose=2 "$APP"
 echo "Built and signed: $APP"
 
