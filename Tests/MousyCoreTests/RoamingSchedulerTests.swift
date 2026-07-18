@@ -79,3 +79,28 @@ private let dt = 1.0 / 60.0
         now += dt
     }
 }
+
+@Test func firstTransitRoutesFromCursorsOwnDisplay() {
+    // Cursor starts on the SECOND display of a DOWN-offset pair: the right
+    // screen's top edge is raised to y=900, so x>2560, y<900 is a dead zone.
+    // Seed 0 lands the first pattern on display 0, so the opening scamper is a
+    // cross-display transit — it must depart from the cursor's OWN display and
+    // route through the shared edge. Anchored at display 0 instead (the pre-fix
+    // bug), the straight leg to a display-0 start slices the dead-zone corner.
+    let offL = CGRect(x: 0, y: 0, width: 2560, height: 1440)
+    let offR = CGRect(x: 2560, y: 900, width: 1920, height: 900)
+    let offArenas = [Arena(screen: offL), Arena(screen: offR)]
+    var s = PatternScheduler(mode: .autoCycle, seed: 0)
+    var now: TimeInterval = 0
+    var prev = CGPoint(x: 3200, y: 950)     // inside offR, the secondary display
+    for i in 0..<Int(30.0 * 60) {
+        let p = s.step(now: now, dt: dt, arenas: offArenas, speed: 1.0, cursor: prev)
+        if i == 0 { #expect(s.currentArenaIndex == 0) }   // scenario: pattern 1 on display 0
+        #expect(Geometry.distance(prev, p) < 30)
+        let inL = offL.insetBy(dx: -1, dy: -1).contains(p)
+        let inR = offR.insetBy(dx: -1, dy: -1).contains(p)
+        #expect(inL || inR)
+        prev = p
+        now += dt
+    }
+}
