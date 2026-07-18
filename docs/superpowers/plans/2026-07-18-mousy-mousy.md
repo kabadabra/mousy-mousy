@@ -58,6 +58,7 @@ dist/
 *.p12
 *.key
 *.crt
+.superpowers/
 ```
 
 - [ ] **Step 3: Write stub sources**
