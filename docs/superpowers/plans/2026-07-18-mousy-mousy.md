@@ -20,6 +20,7 @@
 - Never launch the bare binary — always via `open` on the `.app` bundle (TCC attribution).
 - Conventional commits (`feat:`, `fix:`, `docs:`, `chore:`, `test:`, `build:`). NEVER reference Claude as co-author. Never `git push`.
 - TDD for everything in `MousyCore`. App-target tasks are build-verified + manually smoke-tested (no display, no unit test).
+- Wherever a step says `swift test`, run `./scripts/test.sh` instead — this machine's Command Line Tools ship a broken swift-testing layout and the wrapper supplies the framework/rpath flags (it falls back to bare `swift test` under full Xcode).
 - Cursor/pattern math is in Cocoa global coordinates (bottom-left origin) everywhere; the ONLY top-left flip is inside `CursorSynthesizer` (via `Geometry.cgFromCocoa`) and `Geometry.viewFromCocoa` for SwiftUI.
 
 ---
