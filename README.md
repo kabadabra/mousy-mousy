@@ -61,6 +61,9 @@ Everything lives in the menu bar mouse icon:
   night/privacy mode that hides what's on screen while you're away. (Honesty
   note: on OLED and mini-LED displays the dark modes also save real energy;
   on regular LCD monitors the backlight burns the same watts either way.)
+- **Roam Displays** — with more than one screen, Mousy runs a pattern on one
+  display, then scampers across the border to another. Turn off to keep the
+  session on the display where it started.
 - **Exit** — press **ESC**, pick Stop from the menu, or lock/sleep the
   machine. Moving your physical mouse does *not* end the session; Mousy
   just retakes the wheel.

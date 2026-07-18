@@ -43,8 +43,12 @@ launch via `open "/Applications/Mousy Mousy.app"`.
 - [ ] Screensaver starts mid-run → session stops.
 
 ## Multi-display (if available)
-- [ ] Scrim covers every display; card + Mousy on the cursor's display.
-- [ ] Patterns stay on the display where the session started.
+- [ ] Scrim covers every display; card on the display where the session started.
+- [ ] Roam Displays ON: Mousy crosses to the other display within a few pattern
+      switches; the sprite renders on whichever display it occupies; the cursor
+      follows across the border with no teleports.
+- [ ] Roam Displays OFF: patterns stay on the starting display for the whole
+      session.
 
 ## Persistence & login
 - [ ] Pattern + speed selections survive an app relaunch.
