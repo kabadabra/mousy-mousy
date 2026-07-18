@@ -5,15 +5,16 @@ import SwiftUI
 struct OverlayView: View {
     let model: OverlayModel
     let isCardScreen: Bool
+    let screenIndex: Int
 
     var body: some View {
         ZStack {
             Color.black.opacity(model.scrimOpacity).ignoresSafeArea()
             if isCardScreen {
                 EscCardView(model: model)
-                if model.showSprite {
-                    MousySpriteView(model: model)
-                }
+            }
+            if model.showSprite && model.spriteScreenIndex == screenIndex {
+                MousySpriteView(model: model)
             }
         }
     }

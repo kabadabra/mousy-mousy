@@ -12,6 +12,7 @@ final class OverlayController {
     private(set) var cardPanel: OverlayPanel?
 
     private var panels: [OverlayPanel] = []
+    private var panelScreens: [NSScreen] = []
     private var localMonitor: Any?
     private var globalMonitor: Any?
 
@@ -21,10 +22,12 @@ final class OverlayController {
         let mouse = NSEvent.mouseLocation
         let screens = NSScreen.screens
         cardScreen = screens.first { NSMouseInRect(mouse, $0.frame, false) } ?? screens.first
-        for screen in screens {
+        panelScreens = []
+        for (index, screen) in screens.enumerated() {
             let isCard = screen == cardScreen
             let panel = OverlayPanel(screen: screen)
-            panel.contentView = NSHostingView(rootView: OverlayView(model: model, isCardScreen: isCard))
+            panel.contentView = NSHostingView(rootView: OverlayView(
+                model: model, isCardScreen: isCard, screenIndex: index))
             panel.alphaValue = 0
             if isCard {
                 cardPanel = panel
@@ -33,6 +36,7 @@ final class OverlayController {
                 panel.orderFrontRegardless()
             }
             panels.append(panel)
+            panelScreens.append(screen)
         }
         NSAnimationContext.runAnimationGroup { ctx in
             ctx.duration = 0.35
@@ -45,6 +49,7 @@ final class OverlayController {
         removeMonitors()
         let old = panels
         panels = []
+        panelScreens = []
         cardPanel = nil
         cardScreen = nil
         guard !old.isEmpty else { return }
@@ -57,8 +62,11 @@ final class OverlayController {
     }
 
     func updateSprite(cocoaGlobal p: CGPoint, facingLeft: Bool) {
-        guard let frame = cardScreen?.frame else { return }
-        model.spriteViewPosition = Geometry.viewFromCocoa(p, screenFrame: frame)
+        guard !panelScreens.isEmpty else { return }
+        let index = panelScreens.firstIndex { NSMouseInRect(p, $0.frame, false) }
+            ?? model.spriteScreenIndex
+        model.spriteScreenIndex = index
+        model.spriteViewPosition = Geometry.viewFromCocoa(p, screenFrame: panelScreens[index].frame)
         model.facingLeft = facingLeft
     }
 

@@ -14,6 +14,7 @@ final class OverlayModel {
     var showSprite = false
     var cardDimmed = false
     var scrimOpacity: Double = 0.12              // overridden per session from BackdropStyle
+    var spriteScreenIndex = 0                    // which panel renders the sprite
 
     func reset() {
         phase = .countdown(3)
@@ -22,5 +23,6 @@ final class OverlayModel {
         showSprite = false
         cardDimmed = false
         scrimOpacity = 0.12
+        spriteScreenIndex = 0
     }
 }

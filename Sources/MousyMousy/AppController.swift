@@ -17,13 +17,13 @@ final class AppController {
     private let safety = SafetyMonitor()
     private let driver = DisplayLinkDriver()
     private var engine: EngineCore?
-    private var bounds: CGRect = .zero
+    private var arenas: [Arena] = []
     private var speed: Double = 1
     private var countdownTask: Task<Void, Never>?
     private var dimTask: Task<Void, Never>?
     private let log = Logger(subsystem: "com.chris.mousymousy", category: "session")
 
-    func start(choice: PatternChoice, speed: MoveSpeed, backdrop: BackdropStyle) {
+    func start(choice: PatternChoice, speed: MoveSpeed, backdrop: BackdropStyle, roam: Bool) {
         guard state == .idle, PermissionGate.isTrusted, PermissionGate.canPostEvents else { return }
         state = .countdown
         self.speed = speed.multiplier
@@ -33,8 +33,13 @@ final class AppController {
         overlay.model.scrimOpacity = backdrop.scrimOpacity   // after show(): show() resets the model
         safety.startObservingSystem()
         engine = EngineCore(mode: choice.schedulerMode, seed: UInt64.random(in: .min ... .max))
-        // Patterns run on the card screen, inset so Mousy avoids edges/corners.
-        bounds = (overlay.cardScreen?.frame ?? .zero).insetBy(dx: 80, dy: 80)
+        // Roaming: every display is an arena; otherwise just the card screen.
+        let screens = NSScreen.screens
+        if roam && screens.count > 1 {
+            arenas = screens.map { Arena(screen: $0.frame) }
+        } else {
+            arenas = [Arena(screen: overlay.cardScreen?.frame ?? .zero)]
+        }
         countdownTask = Task { [weak self] in
             for n in [3, 2, 1] {
                 self?.overlay.model.phase = .countdown(n)
@@ -48,7 +53,7 @@ final class AppController {
     private func beginRunning() {
         guard state == .countdown else { return }
         guard let view = overlay.cardPanel?.contentView else { stop(reason: "no-overlay-view"); return }
-        log.notice("beginRunning: canPostEvents=\(PermissionGate.canPostEvents, privacy: .public) bounds=\(String(describing: self.bounds), privacy: .public)")
+        log.notice("beginRunning: canPostEvents=\(PermissionGate.canPostEvents, privacy: .public) arenas=\(self.arenas.count, privacy: .public)")
         state = .running
         overlay.model.phase = .running
         overlay.model.showSprite = true
@@ -66,7 +71,7 @@ final class AppController {
         guard state == .running, var engine else { return }
         // The session ends only via ESC, the menu, or a system event (lock/
         // sleep/display change) — physical mouse input does NOT stop it.
-        let frame = engine.tick(now: now, dt: dt, bounds: bounds, speed: speed,
+        let frame = engine.tick(now: now, dt: dt, arenas: arenas, speed: speed,
                                 cursor: synthesizer.currentCocoaPosition)
         self.engine = engine
         overlay.updateSprite(cocoaGlobal: frame.mousy, facingLeft: frame.facingLeft)

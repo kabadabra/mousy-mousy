@@ -7,11 +7,13 @@ struct MousyMousyApp: App {
     @AppStorage("patternChoice") private var patternRaw = PatternChoice.auto.rawValue
     @AppStorage("moveSpeed") private var speedRaw = MoveSpeed.normal.rawValue
     @AppStorage("backdrop") private var backdropRaw = BackdropStyle.subtle.rawValue
+    @AppStorage("roamDisplays") private var roamDisplays = true
 
     var body: some Scene {
         MenuBarExtra("Mousy Mousy", systemImage: "computermouse") {
             MenuContent(controller: controller, patternRaw: $patternRaw,
-                        speedRaw: $speedRaw, backdropRaw: $backdropRaw)
+                        speedRaw: $speedRaw, backdropRaw: $backdropRaw,
+                        roamDisplays: $roamDisplays)
         }
         .menuBarExtraStyle(.menu)
     }
@@ -22,6 +24,7 @@ struct MenuContent: View {
     @Binding var patternRaw: String
     @Binding var speedRaw: String
     @Binding var backdropRaw: String
+    @Binding var roamDisplays: Bool
     @State private var launchAtLogin = LaunchAtLogin.isEnabled
 
     var body: some View {
@@ -40,7 +43,8 @@ struct MenuContent: View {
             Button("Start Mousy") {
                 controller.start(choice: PatternChoice(rawValue: patternRaw) ?? .auto,
                                  speed: MoveSpeed(rawValue: speedRaw) ?? .normal,
-                                 backdrop: BackdropStyle(rawValue: backdropRaw) ?? .subtle)
+                                 backdrop: BackdropStyle(rawValue: backdropRaw) ?? .subtle,
+                                 roam: roamDisplays)
             }
             .keyboardShortcut("s")
         } else {
@@ -62,6 +66,7 @@ struct MenuContent: View {
                 Text(b.displayName).tag(b.rawValue)
             }
         }
+        Toggle("Roam Displays", isOn: $roamDisplays)
         Divider()
         Toggle("Launch at Login", isOn: Binding(
             get: { launchAtLogin },
