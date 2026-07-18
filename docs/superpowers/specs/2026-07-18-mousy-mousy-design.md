@@ -120,8 +120,10 @@ transitions on the main actor.
 
 ### 5.1 Overlay windows
 
-One `NSPanel` subclass per `NSScreen` (rebuilt on
-`NSApplication.didChangeScreenParametersNotification`):
+One `NSPanel` subclass per `NSScreen`, built fresh on every session start. If
+`NSApplication.didChangeScreenParametersNotification` fires mid-run, the session
+stops gracefully (a topology change implies a human is present — simpler and
+safer than rebuilding panels live):
 
 - `styleMask: [.borderless, .nonactivatingPanel]` — becomes key **without
   activating the app**, so the user's frontmost app keeps focus appearance
@@ -258,7 +260,7 @@ duplicated in defaults. No other persisted state.
 |---------|----------|
 | Accessibility not granted | Start disabled; menu shows grant flow (§7) |
 | CGEvent post fails after grant | Stop mode, menu hint to relaunch app |
-| Display config changes mid-run | Rebuild panels; if cursor's display vanished, stop gracefully |
+| Display config changes mid-run | Stop gracefully (panels are rebuilt fresh on every start) |
 | `SMAppService` registration error | Toggle reverts; menu item shows "needs approval" state with settings deep-link |
 | IOPM assertion create fails | Non-fatal: log, continue (CGEvents still cover presence) |
 
