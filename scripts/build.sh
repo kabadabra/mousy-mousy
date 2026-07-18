@@ -12,7 +12,18 @@ cp .build/release/MousyMousy "$APP/Contents/MacOS/MousyMousy"
 cp Support/Info.plist "$APP/Contents/Info.plist"
 
 # NEVER ad-hoc (-s -): see scripts/make-cert.sh header.
-codesign --force --sign "MousyMousy Dev" "$APP"
+# Prefer an Apple-chained development identity when one exists (no manual
+# Keychain trust step, SMAppService-friendliest); else the local self-signed
+# cert. Both give a rebuild-stable designated requirement, so the
+# Accessibility grant survives rebuilds either way.
+IDENTITY="MousyMousy Dev"
+APPLE_DEV=$(security find-identity -v -p codesigning 2>/dev/null \
+    | sed -n 's/.*"\(Apple Development[^"]*\)".*/\1/p' | head -1)
+if [[ -n "$APPLE_DEV" ]]; then
+    IDENTITY="$APPLE_DEV"
+fi
+echo "Signing with: $IDENTITY"
+codesign --force --sign "$IDENTITY" "$APP"
 codesign --verify --verbose=2 "$APP"
 echo "Built and signed: $APP"
 
