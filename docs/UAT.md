@@ -35,6 +35,8 @@ launch via `open "/Applications/Mousy Mousy.app"`.
 ## Safety stops
 - [ ] Lock screen (Ctrl-Cmd-Q) mid-run → session stops (unlock: overlay gone).
 - [ ] Close lid / sleep mid-run → stopped after wake.
+- [ ] Fast user switch mid-run → session stops.
+- [ ] Screensaver starts mid-run → session stops.
 
 ## Multi-display (if available)
 - [ ] Scrim covers every display; card + Mousy on the cursor's display.
