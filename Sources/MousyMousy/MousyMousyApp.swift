@@ -24,18 +24,23 @@ struct MenuContent: View {
     var body: some View {
         // Re-evaluated each time the menu opens; after granting Accessibility
         // in System Settings, reopen the menu to see Start.
-        if PermissionGate.isTrusted {
-            if controller.state == .idle {
-                Button("Start Mousy") {
-                    controller.start(choice: PatternChoice(rawValue: patternRaw) ?? .auto,
-                                     speed: MoveSpeed(rawValue: speedRaw) ?? .normal)
-                }
-                .keyboardShortcut("s")
-            } else {
-                Button("Stop") { controller.stop() }
-            }
-        } else {
+        if !PermissionGate.isTrusted {
             Button("Grant Accessibility Access…") { PermissionGate.promptForAccess() }
+        } else if !PermissionGate.canPostEvents {
+            // AX-trusted, but event-post rights lag the grant until the app is
+            // relaunched (see PermissionGate.canPostEvents). AppController.start()
+            // also guards on canPostEvents, so a "Start Mousy" click would
+            // silently no-op here — surface the relaunch hint instead (spec §9).
+            Button("Relaunch Mousy Mousy to finish setup") {}
+                .disabled(true)
+        } else if controller.state == .idle {
+            Button("Start Mousy") {
+                controller.start(choice: PatternChoice(rawValue: patternRaw) ?? .auto,
+                                 speed: MoveSpeed(rawValue: speedRaw) ?? .normal)
+            }
+            .keyboardShortcut("s")
+        } else {
+            Button("Stop") { controller.stop() }
         }
         Divider()
         Picker("Pattern", selection: $patternRaw) {
