@@ -64,7 +64,13 @@ public struct PatternScheduler: Sendable {
             case .fixed(let k): kind = k
             case .autoCycle: kind = Self.pickNext(excluding: currentKind, using: &rng)
             }
-            let fromIndex = min(currentArenaIndex, arenas.count - 1)
+            let fromIndex: Int
+            if lastPoint == nil,
+               let cursorArena = arenas.firstIndex(where: { $0.screen.contains(cursor) }) {
+                fromIndex = cursorArena          // first switch departs from the cursor's display
+            } else {
+                fromIndex = min(currentArenaIndex, arenas.count - 1)
+            }
             let toIndex = arenas.count > 1 ? Self.pickArena(count: arenas.count, using: &rng)
                                            : 0
             let toArena = arenas[toIndex]
