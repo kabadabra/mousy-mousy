@@ -21,9 +21,16 @@ public struct EngineCore {
         self.cursorLag = cursorLag
     }
 
+    /// v1 sugar: a single rect used directly as the pattern bounds.
     public mutating func tick(now: TimeInterval, dt: TimeInterval, bounds: CGRect,
                               speed: Double, cursor: CGPoint) -> Frame {
-        let mousy = scheduler.step(now: now, dt: dt, bounds: bounds, speed: speed, cursor: cursor)
+        tick(now: now, dt: dt, arenas: [Arena(screen: bounds, inset: bounds)],
+             speed: speed, cursor: cursor)
+    }
+
+    public mutating func tick(now: TimeInterval, dt: TimeInterval, arenas: [Arena],
+                              speed: Double, cursor: CGPoint) -> Frame {
+        let mousy = scheduler.step(now: now, dt: dt, arenas: arenas, speed: speed, cursor: cursor)
         trail.append(time: now, point: mousy)
         let target = trail.sample(at: now - cursorLag) ?? mousy
         if let lx = lastMousyX, abs(mousy.x - lx) > 0.5 { facingLeft = mousy.x < lx }
