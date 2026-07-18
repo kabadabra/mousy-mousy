@@ -10,6 +10,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp .build/release/MousyMousy "$APP/Contents/MacOS/MousyMousy"
 cp Support/Info.plist "$APP/Contents/Info.plist"
+cp Support/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 
 # NEVER ad-hoc (-s -): see scripts/make-cert.sh header.
 # Prefer an Apple-chained development identity when one exists (no manual
