@@ -1,2 +1,1 @@
-import MousyCore
-print("Mousy Mousy \(MousyCore.version)")
+print("Mousy Mousy")
