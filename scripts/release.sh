@@ -9,7 +9,7 @@
 #   - a notarytool keychain profile exists (one-time setup, run yourself):
 #       DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 #         xcrun notarytool store-credentials mousy-notary \
-#         --apple-id <your-apple-id> --team-id U4JZLDK694 \
+#         --apple-id <your-apple-id> --team-id <your PAID team id> \
 #         --password <app-specific-password from account.apple.com>
 set -euo pipefail
 cd "$(dirname "$0")/.."
