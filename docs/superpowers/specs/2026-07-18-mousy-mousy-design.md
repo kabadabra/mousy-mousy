@@ -38,8 +38,9 @@ Non-goals (v1) — parked for later:
 - Keypress simulation (the old script's spacebar feature — deliberately dropped:
   cursor events already reset the idle channels that matter, and synthetic
   keypresses can type into focused apps).
-- Pattern hopping across multiple displays (patterns run on the display the cursor
-  is on when mode starts; scrim covers all displays).
+- ~~Pattern hopping across multiple displays~~ (v1 scope; superseded by §3.1
+  display roaming in v1.1 — v1 behavior remains available via the Roam
+  Displays toggle turned off).
 
 ## 3. Concept: Mousy always leads
 
@@ -64,6 +65,20 @@ teleport) to the next pattern's starting point. Default mode is **Auto-cycle**
 
 Speeds: **Sleepy**, **Normal**, **Frisky** — a multiplier on path traversal speed
 (and dart intensity for Zoomies).
+
+### 3.1 Display roaming (v1.1)
+
+With multiple displays and the **Roam Displays** toggle on (default), each
+pattern runs on one display (an *arena*: the screen frame inset 80 pt), and the
+scheduler picks an arena per pattern switch — in fixed-pattern mode too, where
+the same pattern restarts on the newly picked display every 20–40 s. Cross-
+display switches scamper through a waypoint at the midpoint of the two screens'
+shared edge segment: straight legs to and from an edge point of a convex screen
+rect cannot leave it, so neither Mousy nor the cursor ever routes through a
+dead zone in offset arrangements (corner-touch layouts fall back to the
+closest-point midpoint). The sprite renders on whichever display's overlay
+panel currently contains it; the glass card stays on the session-start display.
+Plan: `docs/superpowers/plans/2026-07-18-multi-screen-roaming.md`.
 
 All pattern math is pure: `f(t, bounds, speed) → point` (Scribble/Zoomies carry
 their own state stepped by `dt`). Pure functions make the geometry unit-testable
