@@ -20,4 +20,15 @@ import Testing
 @Test func rawValuesRoundTripForAppStorage() {
     for c in PatternChoice.allCases { #expect(PatternChoice(rawValue: c.rawValue) == c) }
     for s in MoveSpeed.allCases { #expect(MoveSpeed(rawValue: s.rawValue) == s) }
+    for b in BackdropStyle.allCases { #expect(BackdropStyle(rawValue: b.rawValue) == b) }
+}
+
+@Test func backdropStylesMapToOpacityAndNames() {
+    #expect(BackdropStyle.subtle.scrimOpacity == 0.12)
+    #expect(BackdropStyle.dim.scrimOpacity == 0.70)
+    #expect(BackdropStyle.dark.scrimOpacity == 0.92)
+    #expect(BackdropStyle.subtle.displayName == "Subtle")
+    #expect(BackdropStyle.dim.displayName == "Dim")
+    #expect(BackdropStyle.dark.displayName == "Dark")
+    #expect(BackdropStyle.allCases.count == 3)
 }

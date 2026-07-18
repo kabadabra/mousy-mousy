@@ -19,6 +19,9 @@ launch via `open "/Applications/Mousy Mousy.app"`.
       (lock/sleep/display change) exits.
 - [ ] Menu "Stop" works. Other keys (letters, space, ⌘Q) do NOT leak into the
       app that was focused before starting, and do not exit the session.
+- [ ] Backdrop presets: Subtle / Dim / Dark visibly change the scrim on all
+      displays; the ESC card stays readable on Dark; selection persists across
+      relaunch.
 
 ## Patterns
 - [ ] Auto-cycle: pattern changes every 20–40 s with a smooth scamper between

@@ -23,13 +23,14 @@ final class AppController {
     private var dimTask: Task<Void, Never>?
     private let log = Logger(subsystem: "com.chris.mousymousy", category: "session")
 
-    func start(choice: PatternChoice, speed: MoveSpeed) {
+    func start(choice: PatternChoice, speed: MoveSpeed, backdrop: BackdropStyle) {
         guard state == .idle, PermissionGate.isTrusted, PermissionGate.canPostEvents else { return }
         state = .countdown
         self.speed = speed.multiplier
         overlay.onEscape = { [weak self] in self?.stop(reason: "escape") }
         safety.onInterrupt = { [weak self] in self?.stop(reason: "system-interrupt") }
         overlay.show()
+        overlay.model.scrimOpacity = backdrop.scrimOpacity   // after show(): show() resets the model
         safety.startObservingSystem()
         engine = EngineCore(mode: choice.schedulerMode, seed: UInt64.random(in: .min ... .max))
         // Patterns run on the card screen, inset so Mousy avoids edges/corners.

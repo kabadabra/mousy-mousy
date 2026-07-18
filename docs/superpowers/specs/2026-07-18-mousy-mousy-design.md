@@ -76,6 +76,8 @@ without a display.
    - **Start Mousy** (keyboard shortcut ⌘S while menu open) / **Stop** while running
    - **Pattern ▸** Auto-cycle (default) · Circle · Star · Figure-8 · Scribble · Zoomies
    - **Speed ▸** Sleepy · Normal · Frisky
+   - **Backdrop ▸** Subtle (12 %, default) · Dim (70 %) · Dark (92 %) — night/
+     privacy mode (v1.0.1)
    - **Launch at Login** (toggle)
    - **Quit** (⌘Q)
    - If Accessibility isn't granted, the menu shows **"Grant Accessibility Access…"**

@@ -8,7 +8,7 @@ struct OverlayView: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.12).ignoresSafeArea()
+            Color.black.opacity(model.scrimOpacity).ignoresSafeArea()
             if isCardScreen {
                 EscCardView(model: model)
                 if model.showSprite {

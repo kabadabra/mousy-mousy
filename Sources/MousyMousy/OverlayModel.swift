@@ -13,6 +13,7 @@ final class OverlayModel {
     var facingLeft = true
     var showSprite = false
     var cardDimmed = false
+    var scrimOpacity: Double = 0.12              // overridden per session from BackdropStyle
 
     func reset() {
         phase = .countdown(3)
@@ -20,5 +21,6 @@ final class OverlayModel {
         facingLeft = true
         showSprite = false
         cardDimmed = false
+        scrimOpacity = 0.12
     }
 }

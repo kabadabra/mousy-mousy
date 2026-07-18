@@ -57,6 +57,10 @@ Everything lives in the menu bar mouse icon:
   Star, Figure-8, Scribble, or Zoomies (Mousy darts away whenever the cursor
   gets close).
 - **Speed** — Sleepy, Normal, or Frisky.
+- **Backdrop** — Subtle keeps your desktop visible; Dim and Dark act as a
+  night/privacy mode that hides what's on screen while you're away. (Honesty
+  note: on OLED and mini-LED displays the dark modes also save real energy;
+  on regular LCD monitors the backlight burns the same watts either way.)
 - **Exit** — press **ESC**, pick Stop from the menu, or lock/sleep the
   machine. Moving your physical mouse does *not* end the session; Mousy
   just retakes the wheel.
