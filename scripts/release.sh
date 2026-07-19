@@ -23,9 +23,29 @@ NOTARY_PROFILE="${NOTARY_PROFILE:-mousy-notary}"
 APP="dist/Mousy Mousy.app"
 ZIP="dist/MousyMousy-$VERSION.zip"
 
-if codesign -dvv "$APP" 2>&1 | grep -q "Developer ID Application" \
-   && DEVELOPER_DIR="$XCODE_DEV" xcrun notarytool history \
-        --keychain-profile "$NOTARY_PROFILE" >/dev/null 2>&1; then
+# Gate diagnostics matter: a silent skip has shipped un-notarized zips twice
+# (once a codesign -dv vs -dvv bug, once a transient network failure right
+# after a VPN toggle). Say WHY we skip, retry transient failures once, and
+# refuse to publish un-notarized unless explicitly overridden.
+NOTARIZE=1
+if ! codesign -dvv "$APP" 2>&1 | grep -q "Developer ID Application"; then
+    echo "NOTE: app is not Developer ID signed — cannot notarize."
+    NOTARIZE=0
+elif ! NOTARY_ERR=$(DEVELOPER_DIR="$XCODE_DEV" xcrun notarytool history \
+        --keychain-profile "$NOTARY_PROFILE" 2>&1 >/dev/null); then
+    sleep 5   # transient network flap (e.g. just after a VPN toggle) — retry once
+    if ! NOTARY_ERR=$(DEVELOPER_DIR="$XCODE_DEV" xcrun notarytool history \
+            --keychain-profile "$NOTARY_PROFILE" 2>&1 >/dev/null); then
+        echo "NOTE: notary profile '$NOTARY_PROFILE' unavailable — cannot notarize."
+        echo "      Reason: $NOTARY_ERR"
+        NOTARIZE=0
+    fi
+fi
+if [[ $NOTARIZE == 0 && "${2:-}" == "--publish" && "${ALLOW_UNNOTARIZED:-}" != "1" ]]; then
+    echo "Refusing to publish un-notarized. Fix the above (or set ALLOW_UNNOTARIZED=1)."
+    exit 1
+fi
+if [[ $NOTARIZE == 1 ]]; then
     echo "Notarizing with keychain profile '$NOTARY_PROFILE'…"
     ditto -c -k --keepParent "$APP" "$ZIP"
     DEVELOPER_DIR="$XCODE_DEV" xcrun notarytool submit "$ZIP" \
@@ -36,8 +56,6 @@ if codesign -dvv "$APP" 2>&1 | grep -q "Developer ID Application" \
     DEVELOPER_DIR="$XCODE_DEV" xcrun stapler staple "$APP"
     rm "$ZIP"    # re-zip below so the stapled ticket ships inside
     echo "Notarized and stapled."
-else
-    echo "NOTE: no Developer ID signature or notary profile — shipping un-notarized."
 fi
 
 # ditto preserves the code signature and bundle metadata; plain zip can break both.
