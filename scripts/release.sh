@@ -28,7 +28,10 @@ ZIP="dist/MousyMousy-$VERSION.zip"
 # after a VPN toggle). Say WHY we skip, retry transient failures once, and
 # refuse to publish un-notarized unless explicitly overridden.
 NOTARIZE=1
-if ! codesign -dvv "$APP" 2>&1 | grep -q "Developer ID Application"; then
+# No pipe here: under pipefail, `codesign | grep -q` intermittently fails on
+# SIGPIPE when grep exits at first match — the cause of two phantom gate skips.
+SIGN_INFO=$(codesign -dvv "$APP" 2>&1 || true)
+if [[ "$SIGN_INFO" != *"Developer ID Application"* ]]; then
     echo "NOTE: app is not Developer ID signed — cannot notarize."
     NOTARIZE=0
 elif ! NOTARY_ERR=$(DEVELOPER_DIR="$XCODE_DEV" xcrun notarytool history \
