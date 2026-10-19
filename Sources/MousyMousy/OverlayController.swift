@@ -7,7 +7,7 @@ import MousyCore
 @MainActor
 final class OverlayController {
     let model = OverlayModel()
-    var onEscape: (() -> Void)?
+    var onExit: (() -> Void)?
     private(set) var cardScreen: NSScreen?
     private(set) var cardPanel: OverlayPanel?
 
@@ -71,19 +71,20 @@ final class OverlayController {
     }
 
     private func installMonitors() {
-        // Primary: our panel is key, so every keystroke arrives here. Swallow all
-        // keys while the overlay is up (spec §4); ESC stops the session.
-        localMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+        let exitEvents: NSEvent.EventTypeMask = [.keyDown, .leftMouseDown, .rightMouseDown]
+        // Consume keys and exit clicks so they don't reach the app underneath.
+        // Mouse movement is deliberately excluded so the cursor can keep roaming.
+        localMonitor = NSEvent.addLocalMonitorForEvents(matching: exitEvents) { [weak self] event in
             MainActor.assumeIsolated {
-                if event.keyCode == 53 { self?.onEscape?() }
+                if event.type != .keyDown || event.keyCode == 53 { self?.onExit?() }
             }
             return nil
         }
         // Backup for the edge case where another app steals key status mid-run.
         // Global monitors never see our own app's events, so both are needed.
-        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
+        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: exitEvents) { [weak self] event in
             MainActor.assumeIsolated {
-                if event.keyCode == 53 { self?.onEscape?() }
+                if event.type != .keyDown || event.keyCode == 53 { self?.onExit?() }
             }
         }
     }

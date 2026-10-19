@@ -19,8 +19,11 @@ cp Support/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 # Accessibility grant survives rebuilds; switching BETWEEN identities changes
 # the requirement and re-prompts once.
 find_identity() {
+    # Use the certificate hash: renewed certificates can share the same name,
+    # which makes codesign reject a name-based selection as ambiguous.
     security find-identity -v -p codesigning 2>/dev/null \
-        | sed -n "s/.*\"\($1[^\"]*\)\".*/\1/p" | head -1
+        | sed -n "s/^[[:space:]]*[0-9]*) \([[:xdigit:]]\{40\}\) \"$1[^\"]*\".*/\1/p" \
+        | sed -n '1p'
 }
 IDENTITY="MousyMousy Dev"
 EXTRA=()

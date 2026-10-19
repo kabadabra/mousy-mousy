@@ -12,11 +12,14 @@ launch via `open "/Applications/Mousy Mousy.app"`.
 - [ ] Start → scrim fades in on ALL displays; glass card centered on the
       cursor's display; countdown 3…2…1.
 - [ ] After countdown: Mousy runs, cursor chases ~a third of a second behind,
-      card switches to "ESC to exit" and dims after ~5 s.
+      card switches to "ESC or click to exit" and dims after ~5 s.
 - [ ] ESC exits gracefully (fade out), cursor stays where it was.
+- [ ] Left-click and right-click anywhere exit during both countdown and running,
+      on every display. The exit click does not activate underlying controls or
+      open an underlying context menu.
+- [ ] After exiting, normal clicks work again.
 - [ ] Physically moving the mouse mid-run does NOT stop the session — Mousy
-      retakes the cursor and continues. Only ESC, the menu, or a system event
-      (lock/sleep/display change) exits.
+      retakes the cursor and continues.
 - [ ] Menu "Stop" works. Other keys (letters, space, ⌘Q) do NOT leak into the
       app that was focused before starting, and do not exit the session.
 - [ ] Backdrop presets: Subtle / Dim / Dark visibly change the scrim on all
@@ -51,6 +54,9 @@ launch via `open "/Applications/Mousy Mousy.app"`.
       session.
 
 ## Persistence & login
+- [ ] Menu "About" opens the standard About window in front, showing Mousy
+      Mousy and the installed app's version/build from its Info.plist. Closing
+      and reopening it works without quitting the app.
 - [ ] Pattern + speed selections survive an app relaunch.
 - [ ] Launch at Login toggle registers (System Settings ▸ Login Items shows
       "Mousy Mousy" / "MousyMousy Dev"); survives logout/login.

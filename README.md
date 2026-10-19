@@ -4,8 +4,8 @@
 background.** AI coding sessions, builds, big downloads, deploys — anything
 that dies or disconnects when your machine dozes off. Instead of a boring
 jiggler, a little mouse runs around your screen and your cursor chases it:
-circles, stars, figure-8s, scribbles, and zoomies. Press **ESC** to take back
-control.
+circles, stars, figure-8s, scribbles, and zoomies. Press **ESC**, left-click,
+or right-click to take back control.
 
 While a session runs, Mousy Mousy keeps two channels covered:
 
@@ -64,10 +64,12 @@ Everything lives in the menu bar mouse icon:
 - **Roam Displays** — with more than one screen, Mousy runs a pattern on one
   display, then scampers across the border to another. Turn off to keep the
   session on the display where it started.
-- **Exit** — press **ESC**, pick Stop from the menu, or lock/sleep the
-  machine. Moving your physical mouse does *not* end the session; Mousy
-  just retakes the wheel.
+- **Exit** — press **ESC**, left-click or right-click anywhere (including
+  during the countdown), pick Stop from the menu, or lock/sleep the machine.
+  Exit clicks are captured by the overlay. Moving your physical mouse does
+  *not* end the session; Mousy just retakes the wheel.
 - **Launch at Login** — optional toggle.
+- **About** — shows the current application version and build number.
 
 ## Privacy
 

@@ -76,6 +76,12 @@ struct MenuContent: View {
             }
         ))
         Divider()
+        Button("About") {
+            NSApp.activate(ignoringOtherApps: true)
+            NSApp.orderFrontStandardAboutPanel(options: [
+                .applicationName: "Mousy Mousy"
+            ])
+        }
         Button("Quit Mousy Mousy") { NSApp.terminate(nil) }
             .keyboardShortcut("q")
     }

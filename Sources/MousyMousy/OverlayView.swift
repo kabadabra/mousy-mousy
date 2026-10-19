@@ -31,9 +31,11 @@ struct EscCardView: View {
                 Text("Starting in \(n)…")
                     .font(.system(size: 30, weight: .semibold, design: .rounded))
             case .running:
-                Label("ESC to exit", systemImage: "escape")
+                Label("ESC or click to exit", systemImage: "escape")
                     .font(.system(size: 30, weight: .semibold, design: .rounded))
             }
+            Text("Left-click or right-click anywhere to exit")
+                .font(.callout)
         }
         .foregroundStyle(.primary)
         .padding(44)

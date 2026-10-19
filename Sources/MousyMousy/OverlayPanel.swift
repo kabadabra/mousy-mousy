@@ -2,7 +2,7 @@ import AppKit
 
 /// Borderless, non-activating, screen-saver-level panel. Becomes key WITHOUT
 /// activating the app (Spotlight's trick), so ESC reaches us while the user's
-/// frontmost app keeps focus appearance. Cursor input passes through.
+/// frontmost app keeps focus appearance. Captures clicks to exit the session.
 final class OverlayPanel: NSPanel {
     override var canBecomeKey: Bool { true }     // borderless panels refuse key by default
     override var canBecomeMain: Bool { false }
@@ -16,7 +16,7 @@ final class OverlayPanel: NSPanel {
         hasShadow = false
         level = .screenSaver                     // above menu bar and Dock; cursor still composites above
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
-        ignoresMouseEvents = true
+        ignoresMouseEvents = false
         hidesOnDeactivate = false                // NSPanel default would hide it
         isFloatingPanel = true
         animationBehavior = .none

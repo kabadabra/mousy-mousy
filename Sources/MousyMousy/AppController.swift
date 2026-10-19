@@ -27,7 +27,7 @@ final class AppController {
         guard state == .idle, PermissionGate.isTrusted, PermissionGate.canPostEvents else { return }
         state = .countdown
         self.speed = speed.multiplier
-        overlay.onEscape = { [weak self] in self?.stop(reason: "escape") }
+        overlay.onExit = { [weak self] in self?.stop(reason: "user-input") }
         safety.onInterrupt = { [weak self] in self?.stop(reason: "system-interrupt") }
         overlay.show()
         overlay.model.scrimOpacity = backdrop.scrimOpacity   // after show(): show() resets the model
@@ -69,8 +69,8 @@ final class AppController {
 
     private func tick(now: TimeInterval, dt: TimeInterval) {
         guard state == .running, var engine else { return }
-        // The session ends only via ESC, the menu, or a system event (lock/
-        // sleep/display change) — physical mouse input does NOT stop it.
+        // ESC, a left/right click, the menu, or a system event ends the session.
+        // Physical mouse movement does not stop it.
         let frame = engine.tick(now: now, dt: dt, arenas: arenas, speed: speed,
                                 cursor: synthesizer.currentCocoaPosition)
         self.engine = engine
